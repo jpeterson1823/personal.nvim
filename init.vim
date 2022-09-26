@@ -50,7 +50,6 @@ set expandtab
 
 "let loaded_matchparen = 1
 
-set shell=fish
 
 set backupskip=/tmp/*,/private/tmp/*
 
@@ -103,6 +102,7 @@ set tabstop=4
 
 set nowrap "No Wrap lines
 
+"}}}
 
 " Highlights "{{{
 
@@ -136,19 +136,17 @@ augroup END
 
 
 
-if &term =~ "screen"
-
-  autocmd BufEnter * if bufname("") !~ "^?[A-Za-z0-9?]*://" | silent! exe '!echo -n "\ek[`hostname`:`basename $PWD`/`basename %`]\e\\"' | endif
-
-  autocmd VimLeave * silent!  exe '!echo -n "\ek[`hostname`:`basename $PWD`]\e\\"'
-
-endif
+"if &term =~ "screen"
+"
+"  autocmd BufEnter * if bufname("") !~ "^?[A-Za-z0-9?]*://" | silent! exe '!echo -n "\ek[`hostname`:`basename $PWD`/`basename %`]\e\\"' | endif
+"
+"  autocmd VimLeave * silent!  exe '!echo -n "\ek[`hostname`:`basename $PWD`]\e\\"'
+"
+"endif
 
 
 
 "}}}
-
-
 
 " Imports "{{{
 
@@ -156,33 +154,31 @@ endif
 
 runtime ./plug.vim
 
-if has("unix")
-
-  let s:uname = system("uname -s")
-
-  " Do Mac stuff
-
-  if s:uname == "Darwin\n"
-
-    runtime ./macos.vim
-
-  endif
-
-endif
-
-if has('win32')
-
-  runtime ./windows.vim
-
-endif
+"if has("unix")
+"
+"  let s:uname = system("uname -s")
+"
+"  " Do Mac stuff
+"
+"  if s:uname == "Darwin\n"
+"
+"    runtime ./macos.vim
+"
+"  endif
+"
+"endif
+"
+"if has('win32')
+"
+"  runtime ./windows.vim
+"
+"endif
 
 
 
 runtime ./maps.vim
 
 "}}}
-
-
 
 " Syntax theme "{{{
 
@@ -207,16 +203,13 @@ if exists("&termguicolors") && exists("&winblend")
   set background=dark
 
   " Use NeoSolarized
-
   "let g:neosolarized_termtrans=1
-
   "runtime ./colors/NeoSolarized.vim
-
   "colorscheme NeoSolarized
  
   " Use EverForest
-  let g:everforest_background = 'hard'
-  colorscheme everforest
+  "let g:everforest_background = 'hard'
+  "colorscheme everforest
 
   " Use HatsuneMiku
   "colorscheme hatsunemiku
@@ -230,13 +223,39 @@ if exists("&termguicolors") && exists("&winblend")
   " Use Spaceduck
   "colorscheme spaceduck
 
+  " Use Gruvbox
+  "let g:gruvbox_contrast_dark = "hard"
+  "colorscheme gruvbox
+
+  " Use Tokyo Night
+  "let g:tokyonight_style = "storm"
+  "colorscheme tokyonight
+
+  " Use Sonokai
+  let g:sonokai_style = "andromeda"
+  let g:sonokai_better_performance = 1
+  colorscheme sonokai
+
+  " Use Vim-Monokai
+  "colorscheme monokai
+
+  " Use BadWolf
+  "colorscheme badwolf
+
+  " Use Lucario
+  "colorscheme lucario
+  
+  " Use palenight
+  "colorscheme palenight
+  
+  " Use Github Theme
+  " colorscheme github_dark
+
 endif
 
 
 
 "}}}
-
-
 
 " Extras "{{{
 
@@ -246,33 +265,39 @@ set exrc
 
 "}}}
 
-
-
-" vim: set foldmethod=marker foldlevel=0:
-
-
+set foldmethod=marker foldlevel=0
 
 " CoC.nvim "{{{
-"
-" ---------------------------------------------------------------------
 
-" Give more space for displaying messages.
-set cmdheight=2
+" Some servers have issues with backup files, see #649.
+set nobackup
+set nowritebackup
 
 " Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
 " delays and poor user experience.
 set updatetime=300
 
+" Always show the signcolumn, otherwise it would shift the text each time
+" diagnostics appear/become resolved.
+set signcolumn=yes
+
 " Use tab for trigger completion with characters ahead and navigate.
+" NOTE: There's always complete item selected by default, you may want to enable
+" no select by `"suggest.noselect": true` in your configuration file.
 " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
 " other plugin before putting this into your config.
 inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#pum#visible() ? coc#pum#next(1) :
+      \ CheckBackspace() ? "\<Tab>" :
       \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
 
-function! s:check_back_space() abort
+" Make <CR> to accept selected completion item or notify coc.nvim to format
+" <C-g>u breaks current undo, please make your own choice.
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
+function! CheckBackspace() abort
   let col = col('.') - 1
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
@@ -283,11 +308,6 @@ if has('nvim')
 else
   inoremap <silent><expr> <c-@> coc#refresh()
 endif
-
-" Make <CR> auto-select the first completion item and notify coc.nvim to
-" format on enter, <cr> could be remapped by other vim plugin
-inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
-                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
 " Use `[g` and `]g` to navigate diagnostics
 " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
@@ -301,15 +321,13 @@ nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 
 " Use K to show documentation in preview window.
-nnoremap <silent> K :call <SID>show_documentation()<CR>
+nnoremap <silent> K :call ShowDocumentation()<CR>
 
-function! s:show_documentation()
-  if (index(['vim','help'], &filetype) >= 0)
-    execute 'h '.expand('<cword>')
-  elseif (coc#rpc#ready())
+function! ShowDocumentation()
+  if CocAction('hasProvider', 'hover')
     call CocActionAsync('doHover')
   else
-    execute '!' . &keywordprg . " " . expand('<cword>')
+    call feedkeys('K', 'in')
   endif
 endfunction
 
@@ -401,8 +419,7 @@ nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
 nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
 " Resume latest coc list.
 nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
-" }}}
-
+"}}}
 
 " LuaLine "{{{
 "
@@ -442,29 +459,28 @@ END
 
 " }}}
 
-
 " NVIM Tree " {{{
 "
 " --------------------------------------------------------------------------------
 
 " vimrc
-let g:nvim_tree_indent_markers = 1 "0 by default, this option shows indent markers when folders are open
-let g:nvim_tree_git_hl = 1 "0 by default, will enable file highlight for git attributes (can be used without the icons).
-let g:nvim_tree_highlight_opened_files = 1 "0 by default, will enable folder and file icon highlight for opened files/directories.
-let g:nvim_tree_root_folder_modifier = ':~' "This is the default. See :help filename-modifiers for more options
-let g:nvim_tree_add_trailing = 1 "0 by default, append a trailing slash to folder names
-let g:nvim_tree_group_empty = 1 " 0 by default, compact folders that only contain a single folder into one node in the file tree
-let g:nvim_tree_icon_padding = ' ' "one space by default, used for rendering the space between the icon and the filename. Use with caution, it could break rendering if you set an empty string depending on your font.
-let g:nvim_tree_symlink_arrow = ' >> ' " defaults to ' ➛ '. used as a separator between symlinks' source and target.
-let g:nvim_tree_respect_buf_cwd = 1 "0 by default, will change cwd of nvim-tree to that of new buffer's when opening nvim-tree.
-let g:nvim_tree_create_in_closed_folder = 1 "0 by default, When creating files, sets the path of a file when cursor is on a closed folder to the parent folder when 0, and inside the folder when 1.
-let g:nvim_tree_special_files = { 'README.md': 1, 'Makefile': 1, 'MAKEFILE': 1 } " List of filenames that gets highlighted with NvimTreeSpecialFile
-let g:nvim_tree_show_icons = {
-    \ 'git': 1,
-    \ 'folders': 0,
-    \ 'files': 0,
-    \ 'folder_arrows': 0,
-    \ }
+"let g:nvim_tree_indent_markers = 1 "0 by default, this option shows indent markers when folders are open
+"let g:nvim_tree_git_hl = 1 "0 by default, will enable file highlight for git attributes (can be used without the icons).
+"let g:nvim_tree_highlight_opened_files = 1 "0 by default, will enable folder and file icon highlight for opened files/directories.
+"let g:nvim_tree_root_folder_modifier = ':~' "This is the default. See :help filename-modifiers for more options
+"let g:nvim_tree_add_trailing = 1 "0 by default, append a trailing slash to folder names
+"let g:nvim_tree_group_empty = 1 " 0 by default, compact folders that only contain a single folder into one node in the file tree
+"let g:nvim_tree_icon_padding = ' ' "one space by default, used for rendering the space between the icon and the filename. Use with caution, it could break rendering if you set an empty string depending on your font.
+"let g:nvim_tree_symlink_arrow = ' >> ' " defaults to ' ➛ '. used as a separator between symlinks' source and target.
+"let g:nvim_tree_respect_buf_cwd = 1 "0 by default, will change cwd of nvim-tree to that of new buffer's when opening nvim-tree.
+"let g:nvim_tree_create_in_closed_folder = 1 "0 by default, When creating files, sets the path of a file when cursor is on a closed folder to the parent folder when 0, and inside the folder when 1.
+"let g:nvim_tree_special_files = { 'README.md': 1, 'Makefile': 1, 'MAKEFILE': 1 } " List of filenames that gets highlighted with NvimTreeSpecialFile
+"let g:nvim_tree_show_icons = {
+"    \ 'git': 1,
+"    \ 'folders': 0,
+"    \ 'files': 0,
+"    \ 'folder_arrows': 0,
+"    \ }
 "If 0, do not show the icons for one of 'git' 'folder' and 'files'
 "1 by default, notice that if 'files' is 1, it will only display
 "if nvim-web-devicons is installed and on your runtimepath.
@@ -473,29 +489,29 @@ let g:nvim_tree_show_icons = {
 
 " default will show icon by default if no icon is provided
 " default shows no icon by default
-let g:nvim_tree_icons = {
-    \ 'default': "",
-    \ 'symlink': "",
-    \ 'git': {
-    \   'unstaged': "✗",
-    \   'staged': "✓",
-    \   'unmerged': "",
-    \   'renamed': "➜",
-    \   'untracked': "★",
-    \   'deleted': "",
-    \   'ignored': "◌"
-    \   },
-    \ 'folder': {
-    \   'arrow_open': "",
-    \   'arrow_closed': "",
-    \   'default': "",
-    \   'open': "",
-    \   'empty': "",
-    \   'empty_open': "",
-    \   'symlink': "",
-    \   'symlink_open': "",
-    \   }
-    \ }
+"let g:nvim_tree_icons = {
+"    \ 'default': "",
+"    \ 'symlink': "",
+"    \ 'git': {
+"    \   'unstaged': "✗",
+"    \   'staged': "✓",
+"    \   'unmerged': "",
+"    \   'renamed': "➜",
+"    \   'untracked': "★",
+"    \   'deleted': "",
+"    \   'ignored': "◌"
+"    \   },
+"    \ 'folder': {
+"    \   'arrow_open': "",
+"    \   'arrow_closed': "",
+"    \   'default': "",
+"    \   'open': "",
+"    \   'empty': "",
+"    \   'empty_open': "",
+"    \   'symlink': "",
+"    \   'symlink_open': "",
+"    \   }
+"    \ }
 
 nnoremap <C-N> :NvimTreeToggle<CR>
 nnoremap <C-n> :NvimTreeFocus<CR>
@@ -519,7 +535,6 @@ lua << EOF
 require'nvim-tree'.setup {
   auto_reload_on_write = true,
   disable_netrw = false,
-  hide_root_folder = false,
   hijack_cursor = false,
   hijack_netrw = true,
   hijack_unnamed_buffer_when_opening = false,
