@@ -1,4 +1,5 @@
 {
     "diagnostic.checkCurrentLine": true,
-    "suggest.noselect":true
+    "suggest.noselect" : true,
+    "suggest.enablePreselect":false
 }
