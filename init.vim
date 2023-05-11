@@ -129,6 +129,7 @@ if exists("&termguicolors") && exists("&winblend")
   " Use Sonokai
   let g:sonokai_style = "andromeda"
   let g:sonokai_better_performance = 1
+  "let g:sonokai_transparent_background=2
   colorscheme sonokai
 
   " Use Vim-Monokai
@@ -344,60 +345,129 @@ require('lualine').setup {
 }
 END
 
+lua << END
+require'nvim-web-devicons'.setup {
+ -- your personnal icons can go here (to override)
+ -- you can specify color or cterm_color instead of specifying both of them
+ -- DevIcon will be appended to `name`
+ override = {
+  zsh = {
+    icon = "",
+    color = "#428850",
+    cterm_color = "65",
+    name = "Zsh"
+  }
+ };
+ -- globally enable different highlight colors per icon (default to true)
+ -- if set to false all icons will have the default icon's color
+ color_icons = true;
+ -- globally enable default icons (default to false)
+ -- will get overriden by `get_icons` option
+ default = true;
+ -- globally enable "strict" selection of icons - icon will be looked up in
+ -- different tables, first by filename, and if not found by extension; this
+ -- prevents cases when file doesn't have any extension but still gets some icon
+ -- because its name happened to match some extension (default to false)
+ strict = true;
+ -- same as `override` but specifically for overrides by filename
+ -- takes effect when `strict` is true
+ override_by_filename = {
+  [".gitignore"] = {
+    icon = "",
+    color = "#f1502f",
+    name = "Gitignore"
+  }
+ };
+ -- same as `override` but specifically for overrides by extension
+ -- takes effect when `strict` is true
+ override_by_extension = {
+  ["log"] = {
+    icon = "",
+    color = "#81e043",
+    name = "Log"
+  }
+ };
+}
+END
+
+" }}}
+
+" TreeSitter {{{
+
+lua << END
+require'nvim-treesitter.configs'.setup {
+  -- A list of parser names, or "all" (the five listed parsers should always be installed)
+  ensure_installed = { "c", "lua", "vim", "vimdoc", "query" },
+
+  -- List of parsers to ignore installing (for "all")
+  ignore_install = { "gitcommit" },
+
+  -- Install parsers synchronously (only applied to `ensure_installed`)
+  sync_install = false,
+
+  -- Automatically install missing parsers when entering buffer
+  -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
+  auto_install = true,
+
+  ---- If you need to change the installation directory of the parsers (see -> Advanced Setup)
+  -- parser_install_dir = "/some/path/to/store/parsers", -- Remember to run vim.opt.runtimepath:append("/some/path/to/store/parsers")!
+
+  highlight = {
+    enable = true,
+
+    -- NOTE: these are the names of the parsers and not the filetype. (for example if you want to
+    -- disable highlighting for the `tex` filetype, you need to include `latex` in this list as this is
+    -- the name of the parser)
+    -- list of language that will be disabled
+    --disable = { "c", "rust" },
+    disable = { "gitcommit" },
+
+    -- Or use a function for more flexibility, e.g. to disable slow treesitter highlight for large files
+    --disable = function(lang, buf)
+    --    local max_filesize = 100 * 1024 -- 100 KB
+    --    local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+    --    if ok and stats and stats.size > max_filesize then
+    --        return true
+    --    end
+    --end,
+
+    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+    -- Using this option may slow down your editor, and you may see some duplicate highlights.
+    -- Instead of true it can also be a list of languages
+    additional_vim_regex_highlighting = false,
+  },
+}
+END
 " }}}
 
 " NVIM Tree " {{{
 " --------------------------------------------------------------------------------
+lua << END
+-- disable netrw at the very start of your init.lua (strongly advised)
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
 
-" vimrc
-"let g:nvim_tree_indent_markers = 1 "0 by default, this option shows indent markers when folders are open
-"let g:nvim_tree_git_hl = 1 "0 by default, will enable file highlight for git attributes (can be used without the icons).
-"let g:nvim_tree_highlight_opened_files = 1 "0 by default, will enable folder and file icon highlight for opened files/directories.
-"let g:nvim_tree_root_folder_modifier = ':~' "This is the default. See :help filename-modifiers for more options
-"let g:nvim_tree_add_trailing = 1 "0 by default, append a trailing slash to folder names
-"let g:nvim_tree_group_empty = 1 " 0 by default, compact folders that only contain a single folder into one node in the file tree
-"let g:nvim_tree_icon_padding = ' ' "one space by default, used for rendering the space between the icon and the filename. Use with caution, it could break rendering if you set an empty string depending on your font.
-"let g:nvim_tree_symlink_arrow = ' >> ' " defaults to ' ➛ '. used as a separator between symlinks' source and target.
-"let g:nvim_tree_respect_buf_cwd = 1 "0 by default, will change cwd of nvim-tree to that of new buffer's when opening nvim-tree.
-"let g:nvim_tree_create_in_closed_folder = 1 "0 by default, When creating files, sets the path of a file when cursor is on a closed folder to the parent folder when 0, and inside the folder when 1.
-"let g:nvim_tree_special_files = { 'README.md': 1, 'Makefile': 1, 'MAKEFILE': 1 } " List of filenames that gets highlighted with NvimTreeSpecialFile
-"let g:nvim_tree_show_icons = {
-"    \ 'git': 1,
-"    \ 'folders': 0,
-"    \ 'files': 0,
-"    \ 'folder_arrows': 0,
-"    \ }
-"If 0, do not show the icons for one of 'git' 'folder' and 'files'
-"1 by default, notice that if 'files' is 1, it will only display
-"if nvim-web-devicons is installed and on your runtimepath.
-"if folder is 1, you can also tell folder_arrows 1 to show small arrows next to the folder icons.
-"but this will not work when you set indent_markers (because of UI conflict)
+-- set termguicolors to enable highlight groups
+vim.opt.termguicolors = true
 
-" default will show icon by default if no icon is provided
-" default shows no icon by default
-"let g:nvim_tree_icons = {
-"    \ 'default': "",
-"    \ 'symlink': "",
-"    \ 'git': {
-"    \   'unstaged': "✗",
-"    \   'staged': "✓",
-"    \   'unmerged': "",
-"    \   'renamed': "➜",
-"    \   'untracked': "★",
-"    \   'deleted': "",
-"    \   'ignored': "◌"
-"    \   },
-"    \ 'folder': {
-"    \   'arrow_open': "",
-"    \   'arrow_closed': "",
-"    \   'default': "",
-"    \   'open': "",
-"    \   'empty': "",
-"    \   'empty_open': "",
-"    \   'symlink': "",
-"    \   'symlink_open': "",
-"    \   }
-"    \ }
+-- empty setup using defaults
+require("nvim-tree").setup()
+
+-- OR setup with some options
+require("nvim-tree").setup({
+  sort_by = "case_sensitive",
+  view = {
+    width = 30,
+  },
+  renderer = {
+    group_empty = true,
+  },
+  filters = {
+    dotfiles = true,
+  },
+})
+END
 
 nnoremap <C-N> :NvimTreeToggle<CR>
 nnoremap <C-n> :NvimTreeFocus<CR>
@@ -413,151 +483,3 @@ nnoremap <leader>n :NvimTreeFindFile<CR>
 " NvimTreeCollapseKeepBuffers
 
 set termguicolors " this variable must be enabled for colors to be applied properly
-
-" a list of groups can be found at `:help nvim_tree_highlight`
-"highlight NvimTreeFolderIcon guibg=blue
-
-
-lua << EOF
-require'nvim-treesitter.configs'.setup {
-  -- A list of parser names, or "all" (the five listed parsers should always be installed)
-  ensure_installed = { "c", "lua", "vim", "vimdoc", "query" },
-
-  -- Install parsers synchronously (only applied to `ensure_installed`)
-  sync_install = false,
-
-  -- Automatically install missing parsers when entering buffer
-  -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-  auto_install = true,
-
-  -- List of parsers to ignore installing (for "all")
-  ignore_install = { "javascript" },
-
-  ---- If you need to change the installation directory of the parsers (see -> Advanced Setup)
-  -- parser_install_dir = "/some/path/to/store/parsers", -- Remember to run vim.opt.runtimepath:append("/some/path/to/store/parsers")!
-
-  highlight = {
-    enable = true,
-
-    -- NOTE: these are the names of the parsers and not the filetype. (for example if you want to
-    -- disable highlighting for the `tex` filetype, you need to include `latex` in this list as this is
-    -- the name of the parser)
-    -- list of language that will be disabled
-    disable = { "c", "rust" },
-    -- Or use a function for more flexibility, e.g. to disable slow treesitter highlight for large files
-    disable = function(lang, buf)
-        local max_filesize = 100 * 1024 -- 100 KB
-        local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
-        if ok and stats and stats.size > max_filesize then
-            return true
-        end
-    end,
-
-    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-    -- Using this option may slow down your editor, and you may see some duplicate highlights.
-    -- Instead of true it can also be a list of languages
-    additional_vim_regex_highlighting = false,
-  },
-}
-EOF
-
-
-"lua << EOF
-"require'nvim-tree'.setup {
-"  auto_reload_on_write = true,
-"  disable_netrw = false,
-"  hijack_cursor = false,
-"  hijack_netrw = true,
-"  hijack_unnamed_buffer_when_opening = false,
-"  ignore_buffer_on_setup = false,
-"  open_on_setup = false,
-"  open_on_tab = false,
-"  sort_by = "name",
-"  update_cwd = false,
-"  view = {
-"    width = 30,
-"    --height = 30,
-"    side = "left",
-"    preserve_window_proportions = false,
-"    number = false,
-"    relativenumber = false,
-"    signcolumn = "yes",
-"    mappings = {
-"      custom_only = false,
-"      list = {
-"        -- user mappings go here
-"      },
-"    },
-"  },
-"  hijack_directories = {
-"    enable = true,
-"    auto_open = true,
-"  },
-"  update_focused_file = {
-"    enable = false,
-"    update_cwd = false,
-"    ignore_list = {},
-"  },
-"  ignore_ft_on_setup = {},
-"  system_open = {
-"    cmd = nil,
-"    args = {},
-"  },
-"  diagnostics = {
-"    enable = false,
-"    show_on_dirs = false,
-"    icons = {
-"      hint = "",
-"      info = "",
-"      warning = "",
-"      error = "",
-"    },
-"  },
-"  filters = {
-"    dotfiles = false,
-"    custom = {},
-"    exclude = {},
-"  },
-"  git = {
-"    enable = true,
-"    ignore = true,
-"    timeout = 400,
-"  },
-"  actions = {
-"    change_dir = {
-"      enable = true,
-"      global = false,
-"    },
-"    open_file = {
-"      quit_on_open = false,
-"      resize_window = false,
-"      window_picker = {
-"        enable = true,
-"        chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
-"        exclude = {
-"          filetype = { "notify", "packer", "qf", "diff", "fugitive", "fugitiveblame" },
-"          buftype = { "nofile", "terminal", "help" },
-"        },
-"      },
-"    },
-"  },
-"  trash = {
-"    cmd = "trash",
-"    require_confirm = true,
-"  },
-"  log = {
-"    enable = false,
-"    truncate = false,
-"    types = {
-"      all = false,
-"      config = false,
-"      copy_paste = false,
-"      git = false,
-"      profile = false,
-"    },
-"  }
-"}
-"EOF
-" }}}
-
