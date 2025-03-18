@@ -1,5 +1,24 @@
 {
-    "diagnostic.checkCurrentLine": true,
-    "suggest.noselect" : true,
-    "suggest.enablePreselect":false
+    "clangd.arguments" : [
+        "--query-driver=/usr/bin/arm-none-eabi-gcc",
+        "--query-driver=/usr/bin/arm-none-eabi-g++"
+    ],
+    "languageserver": {
+        "arduino" : {
+            "command" : "/usr/local/bin/arduino-language-server",
+            "rootPatterns" : ["*.ino"],
+            "filetypes" : ["arduino"],
+            "args": [
+                "-log", "-logpath", "/home/hebi/.arduino15/logs",
+                "-cli", "/usr/local/bin/arduino-cli",
+                "-cli-config", "/home/hebi/.arduino15/arduino-cli.yaml",
+                "-clangd", "/usr/bin/clangd",
+                "-fqbn", "arduino:avr:uno"
+            ],
+            "disabledFeatures":["semanticTokens"]
+        }
+    },
+    "pyright.inlayHints.parameterTypes": false,
+    "pyright.inlayHints.variableTypes" : true,
+    "pyright.inlayHints.functionReturnTypes": true
 }
